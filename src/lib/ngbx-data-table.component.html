@@ -1,0 +1,46 @@
+<h5 *ngIf="this.documents.length===0" class="m-t-xl">
+	No records
+</h5>
+<div class="table-responsive" *ngIf="this.documents.length>0">
+	<table class="table table-striped data-table">
+		<thead class="thead-light">
+			<tr>
+				<th *ngFor="let column of columns">
+					<span *ngIf="column.sortable" style="cursor:pointer">
+						<a (click)="updateSort(column.name)" [ngClass]="{'sortColumn': params.sortBy === column.name}">
+							{{column.label||column.name}}
+						</a>
+						<span class="sort-icon-wrapper" *ngIf="params.sortBy === column.name">
+							<i class="fa fa-caret-up" *ngIf="params.order === 'asc'"></i>
+							<i class="fa fa-caret-down" *ngIf="params.order === 'desc'"></i>
+						</span>
+					</span>
+					<span *ngIf="!column.sortable">
+						{{column.label||column.name}}
+					</span>
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngFor="let document of documents">
+				<td *ngFor="let column of columns">
+					<!--skip lodash curried template to reduce dependencies-->
+					<!-- <span *ngIf="column.template" [innerHTML]="renderColumn(column)(document)"></span> -->
+
+					<!---angular template--->
+					<div *ngIf="column.template">
+						<ng-container  *ngTemplateOutlet="templates[column.template]; context: {'document': document}"></ng-container>
+					</div>
+					<!---plain text--->
+					<span *ngIf="!column.templateRef && !column.template">
+						{{document[column.name]}}
+					</span>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<div style="display: flex !important;justify-content: center !important;">
+	<ngb-pagination [collectionSize]="this.count" [pageSize]="this.limit" maxSize="10" [(page)]="params.page" [boundaryLinks]="true" (pageChange)="onPageChange($event)"></ngb-pagination>
+</div>
